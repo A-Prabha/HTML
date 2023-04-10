@@ -1,0 +1,469 @@
+<%{
+	if(formid != null)
+	{
+		formData = fm_packing_list[ID == formid.toLong()];
+		sizeSequence = fm_order_style_details_subform[Order_Entry_Form_ID == formData.fl_IO_No].fl_size_single_line;
+		sizeList = sizeSequence.toList();
+		poQuantity = fm_buyer_po_quantity_breakup_form[PO_No == formData.fl_buyer_po.fl_po_no].sum(Quantity);
+		solidForm = fm_Packing_List_Solid_Subform[Packing_List_Bi_ID == formData.ID].sum(fl_packed_pcs);
+		assortedForm = fm_packing_list_assorted_subform[Packing_List_Bi_ID == formData.ID].sum(fl_packed_pcs);
+	}
+	%>
+<style>
+  .packingHeader {
+    text-align: center;
+    font-weight: bold;
+	font-size:15px;
+    border: solid 1px;
+  }
+
+  .overAllSplit {
+	  width : auto;
+    display: flex;
+	border : solid 1px;
+  }
+  
+  .colSplit{
+    padding: 16px 0px;
+	width : auto;
+	border-right: 1px solid black ;
+	
+  }
+  
+   .colSplit1{
+   padding: 107px 72px;
+	width : auto;
+	
+  }
+  
+  .content {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 600;
+    padding: 5px;
+  }
+
+  .valuefont {
+   text-align: initial;
+    font-weight: bold;
+  }
+
+  .headerfont {
+    font-weight: bold;
+	text-align:right;
+  }
+
+
+  .table2 {
+    border: 1px solid black;
+    border-collapse: collapse;
+    width: 100%;
+  }
+
+  .table2 td,
+  th {
+    font-weight: bold;
+    border: 1px solid black;
+    padding: 3px 5px;
+    border-collapse: collapse;
+    text-align: center;
+  }
+   .headTable
+   {
+    border-collapse: collapse;
+//     width: 100%;
+   }
+   .headTable td,
+  th {
+    
+  }
+  
+  .emptyTd
+  {
+	   border: 1px solid white;
+  }
+
+  .table2 th {
+    border: 1px solid black;
+    padding: 2px 4px;
+    border-collapse: collapse;
+    font-weight: bold;
+  }
+
+
+  .ctnTable {
+    border: solid;
+  }
+  .head
+  {
+	 font-weight: bold;
+    padding: 5px 136px;
+    text-align: right;
+	 border-collapse: collapse;
+	 width:auto;
+  }
+  .val
+  {
+	  font-weight: bold;
+    padding: 5px 95px;
+    text-align: left;
+	 border-collapse: collapse;
+	 width:auto;
+  }
+</style>
+  <div class="packingHeader">
+    <p >PACKING LIST</p >
+  </div>
+  <section>
+
+  
+  
+  
+ 
+   <div class="overAllSplit">
+    <div class="colSplit">
+     
+	  <table class="headTable">
+		  <tr>
+			  <td class="head">DATE :</td>
+			  <td class="val"><%=zoho.currentdate%> </td>
+		  </tr>
+	       <tr>
+			  <td class="head">BUYER :</td>
+			  <td class="val"><%=formData.fl_buyer.fl_Party%> </td>
+		  </tr>
+		  <tr>
+			  <td class="head">ORDER NO :</td>
+			  <td class="val"><%=formData.fl_order_no%> </span>
+		 </tr>
+		<tr>
+			 <td class="head">CLIENTS ORDER NO :</td>
+			<td class="val"><%=formData.fl_clients_order_no%> </td>
+		</tr>
+		<tr>
+			<td class="head">DESCRIPTION :</td>
+			<td class="val"><%=formData.fl_description%> </td>
+		</tr>
+		<tr>
+			<td class="head">QUALITY :</td>
+			<td class="val"> to be filled </td>
+		</tr>
+		<tr>
+			<td class="head">ORDER QTY :</td>
+			<td class="val"> <%=poQuantity%> </td>
+		</tr>
+		<tr>
+			<td class="head">SHIP QTY :</td>
+			<td class="val"> <%=solidForm + assortedForm%> </td>
+		</tr>
+		<tr>
+			<td class="head">TOTAL CTN :</td>
+			<td class="val"> to be filled </td>
+		</tr>
+		<tr>
+			<td class="head">TOTAL CBM :</td>
+			<td class="val"> to be filled </td>
+		</tr>
+</table>
+	
+	  </div>
+	  <div class="colSplit1">
+	   <div class="content">
+          <h1><%=formData.fl_vendor_company_name.fl_company_name%></h1>
+	  </div>
+	 </div>
+	 </div>
+	 </section>
+<!--------------------------------- ass size table-------------------------------------->
+ <section>
+<div>
+<table>
+<table class="table2">
+<tr>
+<th rowspan=2; colspan=4 style= "width:8%">CARTON NO</th>
+<%
+	sizeSub = fm_packing_list_assorted_subform[Packing_List_Bi_ID == formid.toLong() && fl_ratio > 0];
+	%>
+<th colspan= <%=sizeList.size() + 1%> > ASSORT SIZE </th>
+<th rowspan=2 style= "width:5%">TOTAL</th>
+<th rowspan=2 style= "width:5%">BLISTER</th>
+<th rowspan=2 style= "width:5%">PER CTN</th>
+<th rowspan=2 style= "width:5%">CTN QTY</th>
+<th rowspan=2 style= "width:5%">TTL PCS</th>
+<th rowspan=2 style= "width:5%">GWT </th>
+<th rowspan=2 style= "width:5%">TGWT </th>
+<th colspan=3 style= "width:6%">MEASUREMETS</th>
+<th rowspan=2 style= "width:5%">CBM</th>
+</tr>
+<tr>
+<th style= "width:8%" >COLOR</th>
+<%
+	totalCoton = 0;
+	totalCtn = fm_packing_list_assorted_subform[Packing_List_Bi_ID == formid.toLong() && fl_ratio > 0];
+	totalPiece = totalCtn.sum(fl_packed_pcs);
+	ctnList = {};
+	for each  ctns in totalCtn
+	{
+		if(ctnList.notContains(ctns.fl_frm_ctn.toString() + ctns.fl_to_ctn.toString()))
+		{
+			totalCoton = totalCoton + ctns.fl_total_ctn;
+			ctnList.add(ctns.fl_frm_ctn.toString() + ctns.fl_to_ctn.toString());
+		}
+	}
+	for each  sizeHead in sizeList
+	{
+		%>
+<th style= "width:5%"><%=sizeHead%> </th>
+<%
+	}
+	%>
+<th style= "width:2%">L</th>
+<th style= "width:2%">W</th>
+<th style= "width:2%">H</th>
+</tr>
+<%
+	if(formData.fl_packing_list_type == "ASSORTED" || formData.fl_packing_list_type == "SOLID + ASSORTED")
+	{
+		combinationList = {};
+		for each  sizeData in sizeSub
+		{
+			if(combinationList.notContains(sizeData.fl_frm_ctn + "-" + sizeData.fl_to_ctn + sizeData.fl_combo.toString()))
+			{
+				combinationList.add(sizeData.fl_frm_ctn + "-" + sizeData.fl_to_ctn + sizeData.fl_combo.toString());
+				%>
+<tr>
+<td style= "width:2%">CTN</td>
+<td style= "width:2%"><%=sizeData.fl_frm_ctn%> </td>
+ <td style= "width:2%">-</td>
+<td style= "width:2%"><%=sizeData.fl_to_ctn%> </td>
+<td style= "width:8%"><%=sizeData.fl_combo.fl_combo_code%> </td>
+<%
+				for each  sizeSeq in sizeList
+				{
+					sizeSubsum = fm_packing_list_assorted_subform[Packing_List_Bi_ID == formid.toLong() && fl_combo == sizeData.fl_combo && fl_size1.fl_size == sizeSeq && fl_frm_ctn == sizeData.fl_frm_ctn && fl_to_ctn == sizeData.fl_to_ctn && fl_ratio > 0];
+					if(sizeSubsum.fl_packed_pcs > 0)
+					{
+						%>
+<td style= "width:5%"><%=sizeSubsum.sum(fl_ratio)%> </td>
+<%
+					}
+					else
+					{
+						%>
+<td style= "width:5%"></td>
+<%
+					}
+				}
+				ctnSum = fm_packing_list_assorted_subform[Packing_List_Bi_ID == formid.toLong() && fl_combo == sizeData.fl_combo && fl_frm_ctn == sizeData.fl_frm_ctn && fl_to_ctn == sizeData.fl_to_ctn && fl_ratio > 0];
+				%>
+<td><%=ctnSum.sum(fl_ratio)%> </td>
+<td><%=ctnSum.sum(fl_total_ctn) + " X"%> </td>
+<td><%=ctnSum.sum(fl_pcs_per_ctn)%> </td>
+<td><%=ctnSum.sum(fl_total_ctn)%> </td>
+<td><%=ctnSum.sum(fl_packed_pcs)%></td>
+<td><%=ctnSum.sum(fl_gross_wt)%></td>
+<%
+				if(ctnSum.sum(fl_gross_wt) != null)
+				{
+					%>
+<td><%=ctnSum.sum(fl_gross_wt).round(2)%> </td>
+<%
+				}
+				%>
+<td><%=ctnSum.sum(fl_length)%></td>
+				<td><%=ctnSum.sum(fl_width)%> </td>
+<td><%=ctnSum.sum(fl_height)%> </td>
+<td><%=(ctnSum.sum(fl_total_ctn) * ctnSum.sum(fl_length) / 100 * ctnSum.sum(fl_width) / 100 * ctnSum.sum(fl_height) / 100).round(2)%></td>
+
+</tr>
+<%
+			}
+		}
+		%>
+<tr>
+<td colspan= 5 style="border-bottom:1px solid white;border-left:1px solid white;"> </td>
+<%
+		loComboList = {};
+		sizeLow = fm_packing_list_assorted_subform[Packing_List_Bi_ID == formid.toLong()];
+		for each  lowSize in sizeLow
+		{
+			if(loComboList.notContains(lowSize.fl_size1.toString()))
+			{
+				loComboList.add(lowSize.fl_size1.toString());
+				lowSum = fm_packing_list_assorted_subform[Packing_List_Bi_ID == formid.toLong() && fl_size1 == lowSize.fl_size1];
+				if(lowSum.fl_ratio > 0)
+				{
+					%>
+<td ><%=lowSum.sum(fl_packed_pcs)%> </td>
+<%
+				}
+				else
+				{
+					%>
+<td > </td>
+<%
+				}
+			}
+		}
+		%>
+<td colspan= 3 style="border-bottom:1px solid white;"> </td>
+<td ><%=totalCoton%> </td>
+<td ><%=sizeSub.sum(fl_packed_pcs)%> </td>
+<td style="border-bottom:1px solid white;" ></td>
+<td ><%=sizeSub.sum(fl_gross_wt).round(2)%> </td>
+<td colspan=3 style="border-bottom:1px solid white;"> </td>
+<td >2 </td>
+</tr>
+</table>
+</div>
+<span>
+<h1></h1>
+</span>
+<%
+	}
+	%>
+<!--------------------------------- solid size table-------------------------------------->
+  <div>
+    <table>
+      <table class="table2">
+        <tr>
+<%
+	if(formData.fl_packing_list_type == "SOLID" || formData.fl_packing_list_type == "SOLID + ASSORTED")
+	{
+		sizeSubAss = fm_Packing_List_Solid_Subform[Packing_List_Bi_ID == formid.toLong() && fl_pcs_per_ctn > 0];
+		totalCotonAss = 0;
+		totalCtnAss = fm_Packing_List_Solid_Subform[Packing_List_Bi_ID == formid.toLong() && fl_pcs_per_ctn > 0];
+		totalPieceAss = totalCtnAss.sum(fl_packed_pcs);
+		ctnListAss = {};
+		for each  ctnsAss in totalCtnAss
+		{
+			if(ctnListAss.notContains(ctnsAss.fl_frm_ctn.toString() + ctnsAss.fl_to_ctn.toString()))
+			{
+				totalCotonAss = totalCotonAss + ctnsAss.fl_total_ctn;
+				ctnListAss.add(ctnsAss.fl_frm_ctn.toString() + ctnsAss.fl_to_ctn.toString());
+			}
+		}
+		combinationListAss = {};
+		for each  sizeDataAss in sizeSubAss
+		{
+			if(combinationListAss.notContains(sizeDataAss.fl_frm_ctn + "-" + sizeDataAss.fl_to_ctn + sizeDataAss.fl_combo.toString()))
+			{
+				combinationListAss.add(sizeDataAss.fl_frm_ctn + "-" + sizeDataAss.fl_to_ctn + sizeDataAss.fl_combo.toString());
+				%>
+<tr>
+          <td style= "width:2%">CTN</td>
+          <td style= "width:2%"><%=sizeDataAss.fl_frm_ctn%> </td>
+		   <td style= "width:2%">-</td>
+          <td style= "width:2%"><%=sizeDataAss.fl_to_ctn%> </td>
+          <td style= "width:8%"><%=sizeDataAss.fl_combo.fl_combo_code%> </td>
+<%
+				for each  sizeSeqAss in sizeList
+				{
+					sizeSubsumAss = fm_Packing_List_Solid_Subform[Packing_List_Bi_ID == formid.toLong() && fl_combo == sizeDataAss.fl_combo && fl_size.fl_size == sizeSeqAss && fl_frm_ctn == sizeDataAss.fl_frm_ctn && fl_to_ctn == sizeDataAss.fl_to_ctn && fl_pcs_per_ctn > 0];
+					if(sizeSubsumAss.fl_packed_pcs > 0)
+					{
+						%>
+<td style= "width:5%"><%=sizeSubsumAss.fl_packed_pcs%> </td>
+<%
+					}
+					else
+					{
+						%>
+<td style= "width:5%"></td>
+<%
+					}
+				}
+				ctnSumAss = fm_Packing_List_Solid_Subform[Packing_List_Bi_ID == formid.toLong() && fl_combo == sizeDataAss.fl_combo && fl_frm_ctn == sizeDataAss.fl_frm_ctn && fl_to_ctn == sizeDataAss.fl_to_ctn && fl_pcs_per_ctn > 0];
+				%>
+<td style= "width:5%"><%=ctnSumAss.sum(fl_packed_pcs)%> </td>
+                 <td style= "width:5%"><%=ctnSumAss.fl_total_ctn%> </td>
+<td style= "width:5%"><%=ctnSumAss.sum(fl_pcs_per_ctn)%> </td>
+         <td style= "width:5%"><%=ctnSumAss.fl_total_ctn%></td>
+         <td style= "width:5%"><%=ctnSumAss.sum(fl_packed_pcs)%></td>
+          <td style= "width:5%"><%=ctnSumAss.sum(fl_net_wt).round(2)%> </td>
+          <td style= "width:5%"><%=ctnSumAss.sum(fl_gross_wt).round(2)%> </td>
+		  <td style= "width:2%"><%=ctnSumAss.sum(fl_length)%></td>
+		  <td style= "width:2%"><%=ctnSumAss.sum(fl_width)%> </td>
+		  <td style= "width:2%"><%=ctnSumAss.sum(fl_height)%> </td>
+		  <td style= "width:5%"><%=ctnSumAss.sum(fl_total_ctn) * ctnSumAss.sum(fl_length) / 100 * ctnSumAss.sum(fl_width) / 100 * ctnSumAss.sum(fl_width) / 100%></td>
+        </tr>
+<%
+			}
+		}
+		%>
+<tr>
+<td colspan= 5 style="border-bottom:1px solid white;border-left:1px solid white;"> </td>
+<%
+		sizeLowAss = fm_Packing_List_Solid_Subform[Packing_List_Bi_ID == formid.toLong()];
+		loComboListAss = {};
+		for each  lowSizeAss in sizeLowAss
+		{
+			if(loComboListAss.notContains(lowSizeAss.fl_size.toString()))
+			{
+				loComboListAss.add(lowSizeAss.fl_size.toString());
+				lowSumAss = fm_Packing_List_Solid_Subform[Packing_List_Bi_ID == formid.toLong() && fl_size == lowSizeAss.fl_size];
+				if(lowSumAss.fl_pcs_per_ctn > 0)
+				{
+					%>
+<td ><%=lowSumAss.sum(fl_packed_pcs)%> </td>
+<%
+				}
+				else
+				{
+					%>
+<td > </td>
+<%
+				}
+			}
+		}
+		%>
+<td colspan= 3 style="border-bottom:1px solid white;"> </td>
+<td ><%=totalCotonAss%> </td>
+<td ><%=sizeSubAss.sum(fl_packed_pcs)%> </td>
+<td style="border-bottom:1px solid white;"></td>
+<td ><%=sizeSubAss.sum(fl_gross_wt).round(2)%> </td>
+<td colspan=3 style="border-bottom:1px solid white;"> </td>
+<td >2 </td>
+</tr>
+      </table>
+  </div>
+<%
+	}
+	%>
+<!-------------------------------------------------bottom design----------->
+   <div>
+      <table class="table2">
+        <tr>
+		    
+		<td colspan= 5 style="font-weight:bold;width:16.2%">Total </td>
+<%
+	loComboListAssBot = {};
+	for each  bot in sizeList
+	{
+		if(loComboListAssBot.notContains(bot))
+		{
+			loComboListAssBot.add(bot);
+			lowSumSolidBot = fm_Packing_List_Solid_Subform[Packing_List_Bi_ID == formid.toLong() && fl_size.fl_size == bot];
+			lowSumAssBot = fm_packing_list_assorted_subform[Packing_List_Bi_ID == formid.toLong() && fl_size1.fl_size == bot];
+			%>
+<td style="width:5%;font-weight: bold;"><%=lowSumAssBot.sum(fl_packed_pcs) + lowSumSolidBot.sum(fl_packed_pcs)%> </td>
+<%
+		}
+	}
+	solid = fm_Packing_List_Solid_Subform[Packing_List_Bi_ID == formid.toLong()];
+	assordted = fm_packing_list_assorted_subform[Packing_List_Bi_ID == formid.toLong()];
+	%>
+<td colspan= 3 style="width:16%;font-weight: bold;"> </td>
+<td style="width:5%;font-weight: bold;"><%=solid.sum(fl_total_ctn) + assordted.sum(fl_total_ctn)%> </td>
+<td style="width:5%;font-weight: bold;"><%=solid.sum(fl_packed_pcs) + assordted.sum(fl_packed_pcs)%> </td>
+<td style="width:5%;font-weight: bold;"></td>	
+<td style="width:5%;font-weight: bold;"> <%=solid.sum(fl_gross_wt) + assordted.sum(fl_gross_wt).round(2)%> </td>
+<td style="width:6%;font-weight: bold;"></td>	
+<td style="width:5%;font-weight: bold;">10</td>
+		</tr>
+		</table>
+<div>
+ </section>
+<%
+
+}%>
